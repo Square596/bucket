@@ -15,3 +15,4 @@ echo "folders = $dir" >> $path
 
 files=$(find $HOME -maxdepth 1 -type f | wc -l)
 echo "files = $files" >> $path
+
