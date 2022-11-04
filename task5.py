@@ -1,78 +1,96 @@
 import random
+from typing import List, Optional
+from datetime import datetime
+from abc import ABC, abstractmethod
 
-class Salon:
+
+
+class Human(ABC):
+
     def __init__(self, name: str, sex: str, year_of_birth: int):
-        if year_of_birth > 2022:
-            raise NameError('Incorrect year_of_birth!')
-        if sex != 'M' and sex != 'F':
-            raise NameError('Incorrect sex!')
+        current_year = datetime.now().year
+        if year_of_birth > current_year:
+            raise ValueError(f'Incorrect year_of_birth: {year_of_birth}! It should be no more than {current_year}!')
+        if sex not in ['M', 'F']:
+            raise TypeError('Incorrect sex! It should be "M" for men and "F" for women!')
 
-        self.__name = name
-        self.__sex = sex
-        self.__age = 2022 - year_of_birth
+        self._name = name
+        self._sex = sex
+        self._age = current_year - year_of_birth
 
-    def get_name(self):
-        return self.__name
-    def get_sex(self):
-        return self.__sex
-    def get_age(self):
-        return self.__age
 
-class Human(Salon):
-    def __init__(self, name: str, sex: str, year_of_birth: int, hair_length: int, nail_length: int, nail_color='colorless'):
-        super().__init__(name, sex, year_of_birth)
-        if hair_length <= 0:
-            raise NameError('Incorrect hair_length!')
-        if nail_length <=0:
-            raise NameError('Incorrect nail_length!')
+class Worker(Human):
+
+    @abstractmethod
+    def do_job(self):
+        pass
+
+
+class Client(Human):
+
+    def __init__(self, name: str, sex: str, year_of_birth: int,
+                 hair_length: int, nail_length: int, nail_color='colorless'):
+
+        super().__init__(name=name, sex=sex, year_of_birth=year_of_birth)
+
+        if hair_length < 0:
+            raise ValueError('Incorrect hair_length! It should be non-negative number')
+        if nail_length < 0:
+            raise ValueError('Incorrect nail_length! It should be non-negative number')
+
         self.hair_length = hair_length
         self.nail_length = nail_length
         self.nail_color = nail_color
 
-class Manicurist(Salon):
-    def __init__(self, name: str, sex: str, year_of_birth: int):
-        super().__init__(name, sex, year_of_birth)
+
+class Manicurist(Worker):
+
+    def __init__(self, name: str, sex: str, year_of_birth: int, current_color: Optional[int] = None,
+                 available_colors: List[str] = ['red', 'purple', 'green']):
+        super().__init__(name=name, sex=sex, year_of_birth=year_of_birth)
+
+        self.available_colors = available_colors
+        self.current_color = current_color
 
     def do_job(self, client):
         if client.nail_length == 0:
-            raise NameError('Nails are too short!')
+            raise ValueError("This client hasn't nails!")
         else:
             client.nail_length -= 1
-            client.nail_color = random.choice(['red', 'purple', 'green'])
             if client.nail_length == 0:
-                client.nail_color = 'colorless'
+                client.nail_color = None
+            else:
+                client.nail_color = random.choice(self.available_colors)
 
 
+class Hairdresser(Worker):
 
-class Hairdresser(Salon):
     def __init__(self, name: str, sex: str, year_of_birth: int):
-        super().__init__(name, sex, year_of_birth)
-
+        super().__init__(name=name, sex=sex, year_of_birth=year_of_birth)
 
     def do_job(self, client):
         if client.hair_length == 0:
-            raise NameError('Hair is too short!')
+            raise NameError('Hair are too short!')
         else:
             client.hair_length -= 1
 
-class Barber(Salon):
+
+class Barber(Hairdresser):
+
     def __init__(self, name: str, sex: str, year_of_birth: int):
         super().__init__(name, sex, year_of_birth)
 
     def do_job(self, client):
         if client.get_sex() == 'F':
             raise ValueError('I only work with men!')
+        super().do_job(client=client)
 
-        if client.hair_length == 0:
-            raise NameError('Hair is too short!')
-        else:
-            client.hair_length -= 1
 
-neo = Human(
+neo = Client(
   name="Neo", sex="M", year_of_birth=1964,
   hair_length=10, nail_length=2
 )
-trinity = Human(
+trinity = Client(
   name="Trinity", sex="F", year_of_birth=1967,
   hair_length=30, nail_length=5
 )
@@ -85,5 +103,5 @@ manicurist.do_job(neo)
 barber.do_job(neo)
 # Теперь у Нео волосы длины 9
 
-barber.do_job(trinity)
+# barber.do_job(trinity)
 # А тут программа падает с исключением ValueError...
