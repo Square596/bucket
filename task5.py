@@ -29,7 +29,7 @@ class Worker(Human):
 class Client(Human):
 
     def __init__(self, name: str, sex: str, year_of_birth: int,
-                 hair_length: int, nail_length: int, nail_color='colorless'):
+                 hair_length: int, nail_length: int, nail_color: Optional[int] = None):
 
         super().__init__(name=name, sex=sex, year_of_birth=year_of_birth)
 
@@ -45,12 +45,11 @@ class Client(Human):
 
 class Manicurist(Worker):
 
-    def __init__(self, name: str, sex: str, year_of_birth: int, current_color: Optional[int] = None,
+    def __init__(self, name: str, sex: str, year_of_birth: int,
                  available_colors: List[str] = ['red', 'purple', 'green']):
         super().__init__(name=name, sex=sex, year_of_birth=year_of_birth)
 
         self.available_colors = available_colors
-        self.current_color = current_color
 
     def do_job(self, client):
         if client.nail_length == 0:
@@ -81,7 +80,7 @@ class Barber(Hairdresser):
         super().__init__(name, sex, year_of_birth)
 
     def do_job(self, client):
-        if client.get_sex() == 'F':
+        if client._sex == 'F':
             raise ValueError('I only work with men!')
         super().do_job(client=client)
 
@@ -103,5 +102,5 @@ manicurist.do_job(neo)
 barber.do_job(neo)
 # Теперь у Нео волосы длины 9
 
-# barber.do_job(trinity)
+barber.do_job(trinity)
 # А тут программа падает с исключением ValueError...
