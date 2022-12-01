@@ -3,7 +3,6 @@ from argparse import ArgumentParser
 import time
 
 
-
 def factorize(number):
     out_number = number
     global watch
