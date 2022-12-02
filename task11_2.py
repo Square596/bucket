@@ -5,14 +5,12 @@ import os
 
 def search(path, name, string):
     with open(os.path.join(path, name), 'r') as file:
-        output = ''
         while True:
             line = file.readline()
             if not line:
-                print(output[:-2]) #del "\n"
                 break
             if string in line:
-                output += f'{name}: {line}'
+                print(f'{name}: {line[:-2]}')
 
 
 def separate_txt_iterable(path):
@@ -28,6 +26,6 @@ if __name__ == '__main__':
     parser.add_argument('path', type=str)
     args = parser.parse_args()
 
-    pool = Pool()
+    pool = Pool(os.cpu_count()-1)
     for x in separate_txt_iterable(args.path):
         pool.apply(search, args=(args.path, x, args.string))
