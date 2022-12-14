@@ -1,41 +1,27 @@
-from threading import Thread, current_thread
+from multiprocessing import Pool
 from argparse import ArgumentParser
-import time
 
 
 def factorize(number):
     out_number = number
-    global watch
-    watch[current_thread().name] = time.time()
-
-    Ans = []
+    ans = []
     d = 2
     while d * d <= number:
         if number % d == 0:
-            Ans.append(d)
+            ans.append(d)
             number //= d
         else:
             d += 1
     if number > 1:
-        Ans.append(number)
+        ans.append(number)
     
-    while True:
-        if watch[current_thread().name] == min(watch.values()):
-            print(f'{out_number}: ', end='')
-            print(*Ans)
-            watch.pop(current_thread().name)
-            break
-
-
-def launch_threads(list_numbers):
-    threads = [Thread(target=factorize, args=(i,)) for i in list_numbers]
-    for thread in threads:
-        thread.start()
+    return f'{out_number}: ' + ' '.join(map(str, ans))
 
 
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('values', type=int, nargs='*')
     args = parser.parse_args()
-    watch = {}
-    launch_threads(args.values)
+
+    pool = Pool()
+    print('\n'.join(pool.map(factorize, args.values)))
